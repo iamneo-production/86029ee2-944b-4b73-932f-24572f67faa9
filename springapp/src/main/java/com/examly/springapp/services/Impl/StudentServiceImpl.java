@@ -116,35 +116,14 @@ public class StudentServiceImpl implements StudentService{
 		ApiResponse response = new ApiResponse(null, false);
 		
 		String email = studentDto.getEmail();
-			
+		Course enrollCourse = studentDto.getCourse();
+
 		User user = this.userDao.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("User", "Email", email));
 		
-		String courseName = studentDto.getCourse().getName();
-		int courseId = studentDto.getCourse().getId();
-		
-		Course enrollCourse = this.courseDao.findById(courseId).orElseThrow(()->new ResourceNotFoundException("Course", "Id", courseId));
-		
-		if(!courseName.equals(enrollCourse.getName())) {
-			throw new ResourceNotFoundException("Course", "Name", courseName);
-		}
-		
-		List<Student> students = this.studentDao.findAllByEmail(email);
-		
-		if(!students.isEmpty()) {
-			for(Student stud: students) {
-				if(stud.getCourse().getId() == enrollCourse.getId()) {
-					if(stud.getEligibility().equalsIgnoreCase("Pending")) {
-						response.setMessage("You have already applied for " + enrollCourse.getName() + " with Institute: " + enrollCourse.getInstitute().getName());
-						response.setStatus(false);
-						break;
-					}
-					else if(stud.getEligibility().equalsIgnoreCase("Accepted")) {
-						response.setMessage("Already Enrolled in " + enrollCourse.getName() + " with Institute: " + enrollCourse.getInstitute().getName());
-						response.setStatus(false);
-						break;
-					}
-				}
-			}
+		response = this.checkStudentEnrollment(studentDto);
+
+		if(response.getStatus() == true){
+			response.setStatus(false);
 			return response;
 		}
 		

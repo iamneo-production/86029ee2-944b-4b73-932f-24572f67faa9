@@ -65,7 +65,7 @@ const InstitutePage = () => {
                 </Container>
                 {
                     instituteList.length>0 && (
-                        keyword>0 ? (
+                        keyword.length>0 ? (
                             <InstituteList institutes = {searchedInstituteList}  deleteInstitute={handleDeleteInstitute}  />
                         )
                         :
